@@ -1,0 +1,39 @@
+﻿<Window x:Class="DynastyRazer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DynastyRazer"
+        xmlns:views="clr-namespace:DynastyRazer.Views"
+        xmlns:viewmodels="clr-namespace:DynastyRazer.ViewModels"
+        mc:Ignorable="d"
+        Title="Dynasty Razer" Height="450" Width="852.5" MinWidth="850" MaxHeight="450"
+        Icon="./img/icon.png"
+        Loaded="Window_Loaded">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewmodels:SettingsViewModel}">
+            <views:SettingsView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:MainViewModel}">
+            <views:MainView/>
+        </DataTemplate>
+    </Window.Resources>
+ 
+    <Grid>
+        <StackPanel>
+            <Menu IsMainMenu="True" Padding="0 3">
+                <MenuItem Header="Start" x:Name="MenuItemStarts" Click="MenuItemStarts_Click" />
+                <MenuItem Header="Settings" x:Name="MenuItemSettings" Click="MenuItemSettings_Click" />
+                <MenuItem Header="Help">
+                    <MenuItem x:Name="MenuItemAbout" Click="MenuItemAbout_Click" Header="About"/>
+                </MenuItem>
+            </Menu>
+
+            
+        </StackPanel>
+        <Border Padding="20 40 20 20" Margin="0 12 0 0">
+            <ContentControl Content="{Binding}"/>
+        </Border>
+
+    </Grid>
+</Window>
