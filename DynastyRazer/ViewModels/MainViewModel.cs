@@ -35,21 +35,24 @@ namespace DynastyRazer.ViewModels
 
         public MainViewModel(IMangaProviderService service)
         {
-            _service = service;
-            _series = _service.GetAllSeries();
-            _filteredSeries = new List<SerieListItemModel>(Series);
-            _chaptersToDownload = new ObservableCollection<ChapterListItemModel>();
+            Task.Run(async () =>
+            {
+                _service = service;
+                Series = await _service.GetAllSeries();
+                FilteredSeries = new List<SerieListItemModel>(Series);
+                ChaptersToDownload = new ObservableCollection<ChapterListItemModel>();
 
-            IsDownloading = false;
-            IsSelectAllChaptersChecked = false;
+                IsDownloading = false;
+                IsSelectAllChaptersChecked = false;
 
-            ResetProgressBarDatas();
+                ResetProgressBarDatas();
 
-            SelectAllChaptersChange = new RelayCommand<CheckBox>(OnSelectAllChaptersChange, CanExecuteSelectAllChaptersChange);
-            ChapterClick = new RelayCommand<CheckBox>(OnChapterClick);
-            MangaFilterChanged = new RelayCommand<string>(OnMangaFilterChanged);
-            DownloadClick = new RelayCommand<object>(async (p) => await OnDownloadClick(), CanExecuteDownloadClick);
-            _service.PageDownloadStateChanged += OnPageDownloadStateChanged;
+                SelectAllChaptersChange = new RelayCommand<CheckBox>(OnSelectAllChaptersChange, CanExecuteSelectAllChaptersChange);
+                ChapterClick = new RelayCommand<CheckBox>(OnChapterClick);
+                MangaFilterChanged = new RelayCommand<string>(OnMangaFilterChanged);
+                DownloadClick = new RelayCommand<object>(async (p) => await OnDownloadClick(), CanExecuteDownloadClick);
+                _service.PageDownloadStateChanged += OnPageDownloadStateChanged;
+            });
         }
 
         // GET SET
@@ -117,11 +120,18 @@ namespace DynastyRazer.ViewModels
             set
             {
                 _selectedSerie = value;
-                SerieDetails = _service.GetSerieDetails(_selectedSerie);
                 OnPropertyChanged();
+                _ = LoadSerieDetails();
             }
         }
 
+        #endregion
+
+        #region Async Init
+        private async Task LoadSerieDetails()
+        {
+            SerieDetails = await _service.GetSerieDetails(_selectedSerie);
+        }
         #endregion
 
         // Commands
@@ -203,7 +213,7 @@ namespace DynastyRazer.ViewModels
                 }
 
                 ChaptersToDownload.Clear();
-                SerieDetails = _service.GetSerieDetails(SelectedSerie);
+                _ = LoadSerieDetails();
 
                 IsSelectAllChaptersChecked = false;
                 IsDownloading = false;

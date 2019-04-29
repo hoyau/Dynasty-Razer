@@ -26,11 +26,11 @@ namespace DynastyRazer.Services
 
         }
 
- 
+
 
         // Implementation
 
-        public void AssignChapterModels(List<ChapterListItemModel> list)
+        public async Task AssignChapterModels(List<ChapterListItemModel> list)
         {
             HttpClient client = null;
             foreach (ChapterListItemModel item in list)
@@ -39,8 +39,8 @@ namespace DynastyRazer.Services
                 {
                     client = new HttpClient();
                     string url = $"https://dynasty-scans.com/chapters/{item.Permalink}.json";
-                    HttpResponseMessage response = client.GetAsync(url).Result;
-                    string json = response.Content.ReadAsStringAsync().Result;
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    string json = await response.Content.ReadAsStringAsync();
 
                     ChapterModel chapter = JsonConvert.DeserializeObject<ChapterModel>(json);
                     item.Chapter = chapter;
@@ -54,12 +54,13 @@ namespace DynastyRazer.Services
                     client.Dispose();
                 }
             }
+
+
+
         }
 
-        public void DownloadPage(ChapterPageModel page, string mangaName = null, string chapterName = null)
+        public Task DownloadPage(ChapterPageModel page, string mangaName = null, string chapterName = null)
         {
-            // Create Directory if it doesn't exist
-
             Directory.CreateDirectory($@"{Config.SavePath}\{mangaName}\{chapterName}");
 
             PageDownloadStateChanged.Invoke(this, $"Downloading {chapterName} Page {page.Name}");
@@ -67,20 +68,22 @@ namespace DynastyRazer.Services
             {
                 Uri uri = new Uri("https://dynasty-scans.com" + page.Url);
                 string fileName = uri.Segments[uri.Segments.Length - 1];
+                // Block/Sync, to slow down
                 client.DownloadFile(uri, $@"{Config.SavePath}\{mangaName}\{chapterName}\{fileName}");
             }
             PageDownloadStateChanged.Invoke(this, $"Success");
+            return Task.CompletedTask;
         }
 
-        public List<SerieListItemModel> GetAllSeries()
+        public async Task<List<SerieListItemModel>> GetAllSeries()
         {
             List<SerieListItemModel> series = null;
 
             using (var client = new HttpClient())
             {
                 string url = "https://dynasty-scans.com/series.json";
-                HttpResponseMessage response = client.GetAsync(url).Result;
-                string json = response.Content.ReadAsStringAsync().Result;
+                HttpResponseMessage response = await client.GetAsync(url);
+                string json = await response.Content.ReadAsStringAsync();
 
                 // Remove {"#": and } 
                 json = json.Substring(5, json.Length - 6);
@@ -96,18 +99,19 @@ namespace DynastyRazer.Services
             return series;
         }
 
-        public SerieDetailsModel GetSerieDetails(SerieListItemModel filter)
+        public async Task<SerieDetailsModel> GetSerieDetails(SerieListItemModel filter)
         {
             if (filter == null)
                 return null;
+
 
             SerieDetailsModel serie = null;
 
             using (var client = new HttpClient())
             {
                 string url = $"https://dynasty-scans.com/series/{filter.Permalink}.json";
-                HttpResponseMessage response = client.GetAsync(url).Result;
-                string json = response.Content.ReadAsStringAsync().Result;
+                HttpResponseMessage response = await client.GetAsync(url);
+                string json = await response.Content.ReadAsStringAsync();
 
                 serie = JsonConvert.DeserializeObject<SerieDetailsModel>(json);
 
@@ -117,13 +121,9 @@ namespace DynastyRazer.Services
                     tag.Title = string.Join("", tag.Title.Split(Path.GetInvalidFileNameChars()));
 
             }
-
             SetChapterIsAlreadyDownloadedState(serie);
-
             return serie;
         }
-
-        // Helper
 
         private void SetChapterIsAlreadyDownloadedState(SerieDetailsModel serie)
         {
