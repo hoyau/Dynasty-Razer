@@ -1,4 +1,4 @@
-﻿<Window x:Class="DynastyRazer.AboutWindow"
+﻿<Window x:Class="DynastyRazer.Windows.AboutWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:DynastyRazer"
         mc:Ignorable="d"
         Title="Dynasty Razer - About" Height="157.613" Width="254.771"
-        Icon="./img/icon.png"
         ResizeMode="NoResize">
     <Border Padding="20">
         <Grid>
