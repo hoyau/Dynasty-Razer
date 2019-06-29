@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace DynastyRazer.Models
 {
-
-    //https://dynasty-scans.com/series.json
-    // in Array of Property #
-    public class SerieListItemModel
+    public class SerieListItem
     {
         public string Name { get; set; }
         public string Permalink { get; set; }
     }
+
+    // https://dynasty-scans.com/series.json
+    // in Array of Property #
 }

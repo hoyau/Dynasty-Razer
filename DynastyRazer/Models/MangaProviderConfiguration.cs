@@ -9,9 +9,7 @@ namespace DynastyRazer.Models
     public class MangaProviderConfiguration
     {
         public string SavePath {
-            get {
-                return Properties.Settings.Default.SavePath;
-            }
+            get => Properties.Settings.Default.SavePath;
             set {
                 Properties.Settings.Default.SavePath = value;
                 Properties.Settings.Default.Save();

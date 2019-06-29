@@ -87,6 +87,8 @@
     <Compile Include="Helpers\NegateConverter.cs" />
     <Compile Include="Models\ChapterListItemModel.cs" />
     <Compile Include="Models\ChapterModel.cs" />
+    <Compile Include="Models\ChapterPage.cs" />
+    <Compile Include="Models\ChapterTag.cs" />
     <Compile Include="Models\MangaProviderConfiguration.cs" />
     <Compile Include="Models\SerieDetailsModel.cs" />
     <Compile Include="Models\SerieListModel.cs" />

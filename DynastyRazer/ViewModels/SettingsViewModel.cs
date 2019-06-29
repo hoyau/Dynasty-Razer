@@ -22,20 +22,20 @@ namespace DynastyRazer.ViewModels
         public SettingsViewModel(IMangaProviderService service)
         {
             _service = service;
-            SavePath = _service.Config.SavePath;
+            SavePath = _service.Configuration.SavePath;
             PathClick = new RelayCommand<object>((p) => OnPathClick());
         }
 
         public string SavePath
         {
             get { return _savePath; }
-            set { _savePath = value; OnPropertyChanged(); }
+            set { _savePath = value; NotifyPropertyChanged(); }
         }
 
         public ICommand PathClick
         {
             get => _pathClick;
-            set { _pathClick = value; OnPropertyChanged(); }
+            set { _pathClick = value; NotifyPropertyChanged(); }
         }
 
         private  bool UpdatePath(string path)
@@ -43,8 +43,8 @@ namespace DynastyRazer.ViewModels
             bool result = false;
             if (!String.IsNullOrEmpty(path) && Directory.Exists(path))
             {
-                _service.Config.SavePath = path;
-                SavePath = _service.Config.SavePath;
+                _service.Configuration.SavePath = path;
+                SavePath = _service.Configuration.SavePath;
                 result = true;
             }
 

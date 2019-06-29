@@ -10,12 +10,12 @@ namespace DynastyRazer.Services
 {
     public interface IMangaProviderService
     {
-        MangaProviderConfiguration Config { get; set; }
+        MangaProviderConfiguration Configuration { get; set; }
 
-        Task<List<SerieListItemModel>> GetAllSeries();
-        Task<SerieDetailsModel> GetSerieDetails(SerieListItemModel filter);
-        Task AssignChapterModels(List<ChapterListItemModel> list);
-        Task DownloadPage(ChapterPageModel page, string mangaName, string chapterName);
+        Task<List<SerieListItem>> RetrieveAllSeries();
+        Task<SerieDetails> RetrieveSerieDetails(SerieListItem filter);
+        Task AssignChapter(List<ChapterListItem> list);
+        Task DownloadPage(ChapterPage page, string mangaName, string chapterName);
         event EventHandler<string> PageDownloadStateChanged;
       
     }

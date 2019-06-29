@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 using DynastyRazer.Models;
 using Newtonsoft.Json;
 
@@ -14,70 +15,66 @@ namespace DynastyRazer.Services
 {
     public class DynastyScansService : IMangaProviderService
     {
+        public MangaProviderConfiguration Configuration { get; set; }
+        public List<ChapterListItem> DownloadList { get; set; }
 
-        public MangaProviderConfiguration Config { get; set; }
-        public List<ChapterListItemModel> DownloadList { get; set; }
         public event EventHandler<string> PageDownloadStateChanged;
 
-        public DynastyScansService(MangaProviderConfiguration config)
+        public DynastyScansService(MangaProviderConfiguration configuration)
         {
-            Config = config;
-            DownloadList = new List<ChapterListItemModel>();
-
+            Configuration = configuration;
+            DownloadList = new List<ChapterListItem>();
         }
 
-
-
-        // Implementation
-
-        public async Task AssignChapterModels(List<ChapterListItemModel> list)
+        public async Task AssignChapter(List<ChapterListItem> list)
         {
-            HttpClient client = null;
-            foreach (ChapterListItemModel item in list)
+            foreach (ChapterListItem item in list)
             {
                 try
                 {
-                    client = new HttpClient();
-                    string url = $"https://dynasty-scans.com/chapters/{item.Permalink}.json";
-                    HttpResponseMessage response = await client.GetAsync(url);
-                    string json = await response.Content.ReadAsStringAsync();
+                    using (var client = new HttpClient())
+                    {
+                        string url = $"https://dynasty-scans.com/chapters/{item.Permalink}.json";
+                        HttpResponseMessage response = await client.GetAsync(url);
+                        string json = await response.Content.ReadAsStringAsync();
 
-                    ChapterModel chapter = JsonConvert.DeserializeObject<ChapterModel>(json);
-                    item.Chapter = chapter;
+                        ChapterModel chapter = JsonConvert.DeserializeObject<ChapterModel>(json);
+                        item.Chapter = chapter;
+                    }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
-                finally
-                {
-                    client.Dispose();
-                }
             }
-
-
-
         }
 
-        public Task DownloadPage(ChapterPageModel page, string mangaName = null, string chapterName = null)
+        public Task DownloadPage(ChapterPage page, string mangaName = null, string chapterName = null)
         {
-            Directory.CreateDirectory($@"{Config.SavePath}\{mangaName}\{chapterName}");
-
+            Directory.CreateDirectory($@"{Configuration.SavePath}\{mangaName}\{chapterName}");
             PageDownloadStateChanged.Invoke(this, $"Downloading {chapterName} Page {page.Name}");
-            using (WebClient client = new WebClient())
+
+            try
             {
-                Uri uri = new Uri("https://dynasty-scans.com" + page.Url);
-                string fileName = uri.Segments[uri.Segments.Length - 1];
-                // Block/Sync, to slow down
-                client.DownloadFile(uri, $@"{Config.SavePath}\{mangaName}\{chapterName}\{fileName}");
+                using (var client = new WebClient())
+                {
+                    Uri uri = new Uri("https://dynasty-scans.com" + page.Url);
+                    string fileName = uri.Segments[uri.Segments.Length - 1];
+                    client.DownloadFile(uri, $@"{Configuration.SavePath}\{mangaName}\{chapterName}\{fileName}");
+                }
             }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
             PageDownloadStateChanged.Invoke(this, $"Success");
             return Task.CompletedTask;
         }
 
-        public async Task<List<SerieListItemModel>> GetAllSeries()
+        public async Task<List<SerieListItem>> RetrieveAllSeries()
         {
-            List<SerieListItemModel> series = null;
+            List<SerieListItem> series = null;
 
             using (var client = new HttpClient())
             {
@@ -90,7 +87,7 @@ namespace DynastyRazer.Services
                 // Replace ],"[A-Z]":[ with , that every object is in 1 Array and not categorized
                 json = Regex.Replace(json, @"\],""[A-Z]"":\[", ",");
 
-                series = JsonConvert.DeserializeObject<List<SerieListItemModel>>(json);
+                series = JsonConvert.DeserializeObject<List<SerieListItem>>(json);
 
                 foreach (var serie in series)
                     serie.Name = string.Join("", serie.Name.Split(Path.GetInvalidFileNameChars()));
@@ -99,40 +96,48 @@ namespace DynastyRazer.Services
             return series;
         }
 
-        public async Task<SerieDetailsModel> GetSerieDetails(SerieListItemModel filter)
+        public async Task<SerieDetails> RetrieveSerieDetails(SerieListItem filter)
         {
             if (filter == null)
                 return null;
 
+            SerieDetails serie = null;
 
-            SerieDetailsModel serie = null;
-
-            using (var client = new HttpClient())
+            try
             {
-                string url = $"https://dynasty-scans.com/series/{filter.Permalink}.json";
-                HttpResponseMessage response = await client.GetAsync(url);
-                string json = await response.Content.ReadAsStringAsync();
+                using (var client = new HttpClient())
+                {
+                    string url = $"https://dynasty-scans.com/series/{filter.Permalink}.json";
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    string json = await response.Content.ReadAsStringAsync();
 
-                serie = JsonConvert.DeserializeObject<SerieDetailsModel>(json);
+                    serie = JsonConvert.DeserializeObject<SerieDetails>(json);
 
-                serie.Taggings = serie.Taggings.Where(x => !String.IsNullOrEmpty(x.Title)).ToList();
+                    serie.Taggings = serie.Taggings.Where(x => !String.IsNullOrEmpty(x.Title)).ToList();
 
-                foreach (var tag in serie.Taggings)
-                    tag.Title = string.Join("", tag.Title.Split(Path.GetInvalidFileNameChars()));
+                    foreach (var tag in serie.Taggings)
+                        tag.Title = string.Join("", tag.Title.Split(Path.GetInvalidFileNameChars()));
 
+                }
             }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
             SetChapterIsAlreadyDownloadedState(serie);
             return serie;
         }
 
-        private void SetChapterIsAlreadyDownloadedState(SerieDetailsModel serie)
+        private void SetChapterIsAlreadyDownloadedState(SerieDetails serie)
         {
-            if (serie == null) return;
+            if (serie == null)
+                return;
 
-            foreach (ChapterListItemModel chapter in serie.Taggings)
+            foreach (ChapterListItem chapter in serie.Taggings)
             {
-                string fullPath = $@"{Config.SavePath}\{serie.Name}\{chapter.Title}";
-                chapter.Exists = Directory.Exists(fullPath);
+                string fullPath = $@"{Configuration.SavePath}\{serie.Name}\{chapter.Title}";
+                chapter.IsLocallySaved = Directory.Exists(fullPath);
             }
         }
 

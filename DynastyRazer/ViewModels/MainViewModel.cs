@@ -14,13 +14,12 @@ namespace DynastyRazer.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        #region Init Fields
         private IMangaProviderService _service;
-        private List<SerieListItemModel> _series;
-        private List<SerieListItemModel> _filteredSeries;
-        private SerieDetailsModel _serieDetails;
-        private ObservableCollection<ChapterListItemModel> _chaptersToDownload;
-        private SerieListItemModel _selectedSerie;
+        private List<SerieListItem> _series;
+        private List<SerieListItem> _filteredSeries;
+        private SerieDetails _serieDetails;
+        private ObservableCollection<ChapterListItem> _chaptersToDownload;
+        private SerieListItem _selectedSerie;
         private bool _isDownloading;
         private bool _isSelectAllChaptersChecked;
         private string _downloadStatusText;
@@ -31,16 +30,15 @@ namespace DynastyRazer.ViewModels
         private ICommand _selectAllChaptersChange;
         private ICommand _chapterClick;
         private ICommand _mangaFilterChanged;
-        #endregion
 
         public MainViewModel(IMangaProviderService service)
         {
             Task.Run(async () =>
             {
                 _service = service;
-                Series = await _service.GetAllSeries();
-                FilteredSeries = new List<SerieListItemModel>(Series);
-                ChaptersToDownload = new ObservableCollection<ChapterListItemModel>();
+                Series = await _service.RetrieveAllSeries();
+                FilteredSeries = new List<SerieListItem>(Series);
+                ChaptersToDownload = new ObservableCollection<ChapterListItem>();
 
                 IsDownloading = false;
                 IsSelectAllChaptersChecked = false;
@@ -55,98 +53,138 @@ namespace DynastyRazer.ViewModels
             });
         }
 
-        // GET SET
-
-        #region Get/Set
-
         public bool IsSelectAllChaptersChecked
         {
             get => _isSelectAllChaptersChecked;
-            set { _isSelectAllChaptersChecked = value; OnPropertyChanged(); }
+            set { _isSelectAllChaptersChecked = value; NotifyPropertyChanged(); }
         }
 
-        public List<SerieListItemModel> Series
+        public List<SerieListItem> Series
         {
-            get { return _series; }
-            set { _series = value; OnPropertyChanged(); }
+            get => _series;
+            set { _series = value; NotifyPropertyChanged(); }
         }
 
         public string DownloadStatusText
         {
             get => _downloadStatusText;
-            set { _downloadStatusText = value; OnPropertyChanged(); }
+            set { _downloadStatusText = value; NotifyPropertyChanged(); }
         }
 
-        public List<SerieListItemModel> FilteredSeries
+        public List<SerieListItem> FilteredSeries
         {
             get { return _filteredSeries; }
-            set { _filteredSeries = value; OnPropertyChanged(); }
+            set { _filteredSeries = value; NotifyPropertyChanged(); }
         }
 
-        public SerieDetailsModel SerieDetails
+        public SerieDetails SerieDetails
         {
-            get
-            {
-                return _serieDetails;
-            }
+            get => _serieDetails;
             set
             {
                 _serieDetails = value;
-                if (value != null)
-                {
-                    foreach (ChapterListItemModel chapter in _serieDetails.Taggings)
-                    {
-                        chapter.IsSelected = ChaptersToDownload.Where(x => x.Permalink.Equals(chapter.Permalink)).Count() > 0;
-                    }
-                    OnPropertyChanged();
-                }
+                if (_serieDetails == null)
+                    return;
 
+                foreach (ChapterListItem chapter in _serieDetails.Taggings)
+                    chapter.IsSelected = ChaptersToDownload.Where(x => x.Permalink.Equals(chapter.Permalink)).Count() > 0;
+                NotifyPropertyChanged();
             }
         }
 
-        public ObservableCollection<ChapterListItemModel> ChaptersToDownload
+        public ObservableCollection<ChapterListItem> ChaptersToDownload
         {
-            get { return _chaptersToDownload; }
-            set
-            {
-                _chaptersToDownload = value;
-                OnPropertyChanged();
-            }
+            get => _chaptersToDownload; 
+            set { _chaptersToDownload = value; NotifyPropertyChanged(); }
         }
 
-        public SerieListItemModel SelectedSerie
+        public SerieListItem SelectedSerie
         {
-            get { return _selectedSerie; }
+            get => _selectedSerie; 
             set
             {
                 _selectedSerie = value;
-                OnPropertyChanged();
+                NotifyPropertyChanged();
                 _ = LoadSerieDetails();
             }
         }
 
-        #endregion
-
-        #region Async Init
-        private async Task LoadSerieDetails()
+        public bool IsDownloading
         {
-            SerieDetails = await _service.GetSerieDetails(_selectedSerie);
+            get => _isDownloading;
+            set { _isDownloading = value; NotifyPropertyChanged(); }
         }
-        #endregion
 
-        // Commands
+        public int PagesToDownloadCount
+        {
+            get => _pagesToDownloadCount;
+            set { _pagesToDownloadCount = value; NotifyPropertyChanged(); }
+        }
 
-        #region ChapterClick (CheckBox)
+        public int PagesDownloadedCount
+        {
+            get => _pagesDownloadedCount;
+            set { _pagesDownloadedCount = value; NotifyPropertyChanged(); }
+        }
+
         public ICommand ChapterClick
         {
             get => _chapterClick;
-            set { _chapterClick = value; OnPropertyChanged(); }
+            set { _chapterClick = value; NotifyPropertyChanged(); }
+        }
+
+        public ICommand SelectAllChaptersChange
+        {
+            get => _selectAllChaptersChange;
+            set { _selectAllChaptersChange = value; NotifyPropertyChanged(); }
+        }
+
+        public ICommand DownloadClick
+        {
+            get => _downloadClick;
+            set { _downloadClick = value; NotifyPropertyChanged(); }
+        }
+
+        public ICommand MangaFilterChanged
+        {
+            get => _mangaFilterChanged;
+            set { _mangaFilterChanged = value; NotifyPropertyChanged(); }
+        }
+
+        private async Task LoadSerieDetails()
+        {
+            SerieDetails = await _service.RetrieveSerieDetails(_selectedSerie);
+        }
+
+        private bool CanExecuteDownloadClick(object param)
+        {
+            return !_isDownloading;
+        }
+
+        private void InitProgressBarDatas()
+        {
+            int pageCount = 0;
+            foreach (var item in ChaptersToDownload)
+                pageCount += item.Chapter.Pages.Count;
+            PagesToDownloadCount = pageCount;
+            PagesDownloadedCount = 0;
+        }
+
+        private void ResetProgressBarDatas()
+        {
+            PagesToDownloadCount = 1;
+            PagesDownloadedCount = 0;
+        }
+
+        private bool CanExecuteSelectAllChaptersChange(object param)
+        {
+            return _serieDetails != null && !_isDownloading;
         }
 
         private void OnChapterClick(CheckBox c)
         {
             bool isChecked = (bool)c.IsChecked;
-            ChapterListItemModel chapterItem = (ChapterListItemModel)c.DataContext;
+            ChapterListItem chapterItem = (ChapterListItem)c.DataContext;
             chapterItem.IsSelected = isChecked;
 
             if (isChecked)
@@ -154,22 +192,14 @@ namespace DynastyRazer.ViewModels
             else
                 ChaptersToDownload.Remove(chapterItem);
         }
-        #endregion
-
-        #region SelectAllChapterChange (CheckBox)
-        public ICommand SelectAllChaptersChange
-        {
-            get => _selectAllChaptersChange;
-            set { _selectAllChaptersChange = value; OnPropertyChanged(); }
-        }
 
         private void OnSelectAllChaptersChange(CheckBox c)
         {
             bool isChecked = (bool)c.IsChecked;
 
-            foreach (ChapterListItemModel chapterItem in _serieDetails.Taggings)
+            foreach (ChapterListItem chapterItem in _serieDetails.Taggings)
             {
-                if (!chapterItem.Exists)
+                if (!chapterItem.IsLocallySaved)
                 {
                     chapterItem.IsChecked = isChecked;
                     if (isChecked && !ChaptersToDownload.Contains(chapterItem))
@@ -181,26 +211,12 @@ namespace DynastyRazer.ViewModels
 
         }
 
-        private bool CanExecuteSelectAllChaptersChange(object param)
-        {
-            return _serieDetails != null && !_isDownloading;
-        }
-        #endregion
-
-        #region DownloadClick (Button)
-
-        public ICommand DownloadClick
-        {
-            get { return _downloadClick; }
-            set { _downloadClick = value; OnPropertyChanged(); }
-        }
-
-        public async Task OnDownloadClick()
+        private async Task OnDownloadClick()
         {
             await Task.Run(() =>
             {
                 IsDownloading = true;
-                _service.AssignChapterModels(ChaptersToDownload.ToList());
+                _service.AssignChapter(ChaptersToDownload.ToList());
                 InitProgressBarDatas();
 
                 foreach (var item in ChaptersToDownload)
@@ -221,82 +237,22 @@ namespace DynastyRazer.ViewModels
             CommandManager.InvalidateRequerySuggested();
         }
 
-        private bool CanExecuteDownloadClick(object param)
-        {
-            return !_isDownloading;
-        }
-
-        public bool IsDownloading
-        {
-            get { return _isDownloading; }
-            set
-            {
-                _isDownloading = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private void InitProgressBarDatas()
-        {
-
-            int pageCount = 0;
-            foreach (var item in ChaptersToDownload)
-            {
-                pageCount += item.Chapter.Pages.Count;
-            }
-
-            PagesToDownloadCount = pageCount;
-            PagesDownloadedCount = 0;
-        }
-
-        private void ResetProgressBarDatas()
-        {
-            PagesToDownloadCount = 1;
-            PagesDownloadedCount = 0;
-        }
-
-        public int PagesToDownloadCount
-        {
-            get { return _pagesToDownloadCount; }
-            set { _pagesToDownloadCount = value; OnPropertyChanged(); }
-        }
-
-        public int PagesDownloadedCount
-        {
-            get { return _pagesDownloadedCount; }
-            set
-            {
-                _pagesDownloadedCount = value;
-                OnPropertyChanged();
-            }
-        }
-        #endregion
-
-        #region MangaFilterChanged (TextBox On KeyUp)
-        public ICommand MangaFilterChanged
-        {
-            get => _mangaFilterChanged;
-            set { _mangaFilterChanged = value; OnPropertyChanged(); }
-        }
-
         private void OnMangaFilterChanged(string filterString)
         {
-            IEnumerable<SerieListItemModel> t = from serie in Series
+            IEnumerable<SerieListItem> t = from serie in Series
                                                 where serie.Name.ToLower().IndexOf(filterString.ToLower()) >= 0
                                                 select serie;
             FilteredSeries = t.ToList();
         }
-        #endregion
 
-        // Events
-
-        #region Events 
         private void OnPageDownloadStateChanged(object param, string s)
         {
             DownloadStatusText = s;
         }
 
-        #endregion
+
+
+
 
     }
 }
