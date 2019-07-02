@@ -87,8 +87,8 @@ namespace DynastyRazer.ViewModels
                 if (_serieDetails == null)
                     return;
 
-                foreach (ChapterListItem chapter in _serieDetails.Taggings)
-                    chapter.IsSelected = ChaptersToDownload.Where(x => x.Permalink.Equals(chapter.Permalink)).Count() > 0;
+                foreach (ChapterListItem chapter in _serieDetails.Chapters)
+                    chapter.IsSelected = ChaptersToDownload.Where(x => x.Url.Equals(chapter.Url)).Count() > 0;
                 NotifyPropertyChanged();
             }
         }
@@ -166,7 +166,7 @@ namespace DynastyRazer.ViewModels
         {
             int pageCount = 0;
             foreach (var item in ChaptersToDownload)
-                pageCount += item.Chapter.Pages.Count;
+                pageCount += item.ChapterDetails.Pages.Count;
             PagesToDownloadCount = pageCount;
             PagesDownloadedCount = 0;
         }
@@ -201,10 +201,10 @@ namespace DynastyRazer.ViewModels
         {
             bool isChecked = (bool)c.IsChecked;
 
-            if (_serieDetails?.Taggings == null)
+            if (_serieDetails?.Chapters == null)
                 return;
 
-            foreach (ChapterListItem chapterItem in _serieDetails.Taggings)
+            foreach (ChapterListItem chapterItem in _serieDetails.Chapters)
             {
                 if (!chapterItem.IsLocallySaved)
                 {
@@ -228,14 +228,9 @@ namespace DynastyRazer.ViewModels
                     await _service.AssignChapter(ChaptersToDownload.ToList());
                     InitProgressBarDatas();
 
-                    foreach (var item in ChaptersToDownload)
-                    {
-                        foreach (var page in item.Chapter.Pages)
-                        {
-                            await _service.DownloadPage(page, item.Chapter.Tags.Where(x => x.Type.Equals("Series")).First().Name, item.Title);
-                            PagesDownloadedCount++;
-                        }
-                    }
+                    await _service.StartDownload(ChaptersToDownload?.ToList());
+
+    
 
                     ChaptersToDownload.Clear();
                     _ = LoadSerieDetails();
@@ -255,7 +250,7 @@ namespace DynastyRazer.ViewModels
         private void MangaFilterChanged(string filterString)
         {
             IEnumerable<SerieListItem> t = from serie in Series
-                                                where serie.Name.ToLower().IndexOf(filterString.ToLower()) >= 0
+                                                where serie.Title.ToLower().IndexOf(filterString.ToLower()) >= 0
                                                 select serie;
             FilteredSeries = t.ToList();
         }
@@ -263,6 +258,7 @@ namespace DynastyRazer.ViewModels
         private void PageDownloadStateChanged(object param, string s)
         {
             DownloadStatusText = s;
+            PagesDownloadedCount++;
         }
 
 

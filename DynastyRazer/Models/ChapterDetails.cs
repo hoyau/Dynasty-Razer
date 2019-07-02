@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace DynastyRazer.Models
 {
-    public class Chapter
+    public class ChapterDetails
     {
         public string Title { get; set; }
-        public string Permalink { get; set; }
+        public string Url { get; set; }
         public List<ChapterPage> Pages { get; set; }
-        public List<ChapterTag> Tags { get; set; }
     }
 }
 
-//Example: https://dynasty-scans.com/chapters/an_absurd_relationship_ch01.json

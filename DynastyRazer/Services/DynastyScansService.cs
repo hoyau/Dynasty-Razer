@@ -8,6 +8,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using DynastyRazer.MangaMapper.Dynasty_Scans;
+using DynastyRazer.MangaModels.Dynasty_Scans;
 using DynastyRazer.Models;
 using DynastyRazer.ViewModels;
 using Newtonsoft.Json;
@@ -16,15 +18,11 @@ namespace DynastyRazer.Services
 {
     public class DynastyScansService : IMangaProviderService
     {
-        public MangaProviderConfiguration Configuration { get; set; }
-        public List<ChapterListItem> DownloadList { get; set; }
-
         public event EventHandler<string> PageDownloadStateChanged;
 
-        public DynastyScansService(MangaProviderConfiguration configuration)
+        public DynastyScansService()
         {
-            Configuration = configuration;
-            DownloadList = new List<ChapterListItem>();
+
         }
 
         public async Task AssignChapter(List<ChapterListItem> list)
@@ -33,35 +31,20 @@ namespace DynastyRazer.Services
             {
                 using (var client = new HttpClient())
                 {
-                    string url = $"https://dynasty-scans.com/chapters/{item.Permalink}.json";
+                    string url = $"https://dynasty-scans.com/chapters/{item.Url}.json";
                     HttpResponseMessage response = await client.GetAsync(url);
                     string json = await response.Content.ReadAsStringAsync();
 
-                    Chapter chapter = JsonConvert.DeserializeObject<Chapter>(json);
-                    item.Chapter = chapter;
+                    DynastyChapter internChapter = JsonConvert.DeserializeObject<DynastyChapter>(json);
+                    ChapterDetails chapterDetails = DynastyMapper.MapChapterDetails(internChapter);
+                    item.ChapterDetails = chapterDetails;
                 }
             }
         }
 
-        public Task DownloadPage(ChapterPage page, string mangaName = null, string chapterName = null)
-        {
-            Directory.CreateDirectory($@"{Configuration.SavePath}\{mangaName}\{chapterName}");
-            PageDownloadStateChanged.Invoke(this, $"Downloading {chapterName} Page {page.Name}");
-
-            using (var client = new WebClient())
-            {
-                Uri uri = new Uri("https://dynasty-scans.com" + page.Url);
-                string fileName = uri.Segments[uri.Segments.Length - 1];
-                client.DownloadFile(uri, $@"{Configuration.SavePath}\{mangaName}\{chapterName}\{fileName}");
-            }
-
-            PageDownloadStateChanged.Invoke(this, $"Success");
-            return Task.CompletedTask;
-        }
-
         public async Task<List<SerieListItem>> RetrieveAllSeries()
         {
-            List<SerieListItem> series = null;
+            List<DynastySerieListItem> internSeries = null;
 
             using (var client = new HttpClient())
             {
@@ -74,11 +57,13 @@ namespace DynastyRazer.Services
                 // Replace ],"[A-Z]":[ with , that every object is in 1 Array and not categorized
                 json = Regex.Replace(json, @"\],""[A-Z]"":\[", ",");
 
-                series = JsonConvert.DeserializeObject<List<SerieListItem>>(json);
+                internSeries = JsonConvert.DeserializeObject<List<DynastySerieListItem>>(json);
 
-                foreach (var serie in series)
+                foreach (var serie in internSeries)
                     serie.Name = string.Join("", serie.Name.Split(Path.GetInvalidFileNameChars()));
             }
+
+            List<SerieListItem> series = DynastyMapper.MapSerieListItems(internSeries);
 
             return series;
         }
@@ -88,41 +73,54 @@ namespace DynastyRazer.Services
             if (filter == null)
                 return null;
 
-            SerieDetails serie = null;
+            DynastySerieDetails internSerie = null;
 
             using (var client = new HttpClient())
             {
-                string url = $"https://dynasty-scans.com/series/{filter.Permalink}.json";
+                string url = $"https://dynasty-scans.com/series/{filter.Url}.json";
                 HttpResponseMessage response = await client.GetAsync(url);
                 string json = await response.Content.ReadAsStringAsync();
 
-                serie = JsonConvert.DeserializeObject<SerieDetails>(json);
+                internSerie = JsonConvert.DeserializeObject<DynastySerieDetails>(json);
+                internSerie.Taggings = internSerie.Taggings.Where(x => !String.IsNullOrEmpty(x.Title)).ToList();
 
-                serie.Taggings = serie.Taggings.Where(x => !String.IsNullOrEmpty(x.Title)).ToList();
-
-                foreach (var tag in serie.Taggings)
+                foreach (var tag in internSerie.Taggings)
                     tag.Title = string.Join("", tag.Title.Split(Path.GetInvalidFileNameChars()));
-
             }
 
-            SetChapterIsAlreadyDownloadedState(serie);
+            SerieDetails serie = DynastyMapper.MapSerieDetails(internSerie, filter.Title, filter.Url);
+            StorageService.SetChapterIsAlreadyDownloadedState(serie);
             return serie;
         }
 
-        private void SetChapterIsAlreadyDownloadedState(SerieDetails serie)
+        public async Task StartDownload(List<ChapterListItem> chaptersToDownload)
         {
-            if (serie == null)
-                return;
-
-            foreach (ChapterListItem chapter in serie.Taggings)
+            foreach (var item in chaptersToDownload)
             {
-                string fullPath = $@"{Configuration.SavePath}\{serie.Name}\{chapter.Title}";
-                chapter.IsLocallySaved = Directory.Exists(fullPath);
+                foreach (var page in item.ChapterDetails.Pages)
+                {
+                    await DownloadPage(page, item.MangaTitle, item.Title);
+                }
             }
         }
 
+        private Task DownloadPage(ChapterPage page, string mangaName = null, string chapterName = null)
+        {
+            Directory.CreateDirectory($@"{StorageService.SavePath}\{mangaName}\{chapterName}");
+            PageDownloadStateChanged.Invoke(this, $"Downloading {chapterName} Page {page.Name}");
 
+            using (var client = new WebClient())
+            {
+                Uri uri = new Uri("https://dynasty-scans.com" + page.Url);
+                string fileName = uri.Segments[uri.Segments.Length - 1];
+                client.DownloadFile(uri, $@"{StorageService.SavePath}\{mangaName}\{chapterName}\{fileName}");
+            }
+
+            PageDownloadStateChanged.Invoke(this, $"Success");
+            return Task.CompletedTask;
+        }
     }
+
 }
 
 /*

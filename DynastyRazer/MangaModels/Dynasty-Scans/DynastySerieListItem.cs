@@ -4,14 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DynastyRazer.Models
+namespace DynastyRazer.MangaModels.Dynasty_Scans
 {
-    public class SerieListItem
+    public class DynastySerieListItem
     {
         public string Name { get; set; }
         public string Permalink { get; set; }
     }
-
-    // https://dynasty-scans.com/series.json
-    // in Array of Property #
 }

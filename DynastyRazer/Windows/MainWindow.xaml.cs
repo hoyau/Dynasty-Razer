@@ -32,8 +32,7 @@ namespace DynastyRazer.Windows
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            _mangaProviderService = 
-                new DynastyScansService(new MangaProviderConfiguration());
+            _mangaProviderService = new DynastyScansService();
             DataContext = new MainViewModel(_mangaProviderService);
         }
 

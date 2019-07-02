@@ -85,15 +85,20 @@
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Helpers\NandConverter.cs" />
     <Compile Include="Helpers\NegateConverter.cs" />
+    <Compile Include="MangaMapper\Dynasty-Scans\DynastyMapper.cs" />
+    <Compile Include="MangaModels\Dynasty-Scans\DynastyChapter.cs" />
+    <Compile Include="MangaModels\Dynasty-Scans\DynastyPage.cs" />
+    <Compile Include="MangaModels\Dynasty-Scans\DynastySerieDetails.cs" />
+    <Compile Include="MangaModels\Dynasty-Scans\DynastySerieListItem.cs" />
+    <Compile Include="MangaModels\Dynasty-Scans\DynastyTag.cs" />
     <Compile Include="Models\ChapterListItem.cs" />
-    <Compile Include="Models\ChapterModel.cs" />
+    <Compile Include="Models\ChapterDetails.cs" />
     <Compile Include="Models\ChapterPage.cs" />
-    <Compile Include="Models\ChapterTag.cs" />
-    <Compile Include="Models\MangaProviderConfiguration.cs" />
     <Compile Include="Models\SerieDetails.cs" />
-    <Compile Include="Models\SerieListModel.cs" />
+    <Compile Include="Models\SerieListItem.cs" />
     <Compile Include="Services\DynastyScansService.cs" />
     <Compile Include="Services\IMangaProviderService.cs" />
+    <Compile Include="Services\StorageService.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
@@ -149,6 +154,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="MangaModels\Dynasty-Scans\model-structure.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

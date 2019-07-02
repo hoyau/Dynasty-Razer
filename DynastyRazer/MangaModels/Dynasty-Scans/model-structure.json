@@ -1,0 +1,209 @@
+{
+  // Series Overview
+  // https://dynasty-scans.com/series.json
+  "Series": {
+    "#": [
+      {
+        "name": "'I Love You!' Get It Across!",
+        "permalink": "i_love_you_get_it_across"
+      },
+      {
+        "name": "1 x \u00bd",
+        "permalink": "1_x"
+      },
+      {
+        "name": "4-koma C\u00b3",
+        "permalink": "4_koma_c"
+      }
+    ]
+  },
+  // Serie Details
+  // https://dynasty-scans.com/series/an_absurd_relationship.json
+  "SerieDetails": {
+    "name": "An Absurd Relationship",
+    "type": "Series",
+    "permalink": "an_absurd_relationship",
+    "tags": [
+      {
+        "type": "Author",
+        "name": "Takemiya Jin",
+        "permalink": "takemiya_jin"
+      },
+      {
+        "type": "General",
+        "name": "Drama",
+        "permalink": "drama"
+      },
+      {
+        "type": "General",
+        "name": "Yuri",
+        "permalink": "yuri"
+      },
+      {
+        "type": "Status",
+        "name": "Completed",
+        "permalink": "completed"
+      }
+    ],
+    "cover": "/system/tag_contents_covers/000/005/578/medium/00003.jpg?1513270595",
+    "link": null,
+    "description": null,
+    "aliases": [
+      "Irrational Us"
+    ],
+    "taggings": [
+      {
+        "header": "Collected Volume"
+      },
+      {
+        "title": "Chapter 1",
+        "permalink": "an_absurd_relationship_ch01",
+        "released_on": "2014-08-28",
+        "tags": [
+          {
+            "type": "Author",
+            "name": "Takemiya Jin",
+            "permalink": "takemiya_jin"
+          },
+          {
+            "type": "Scanlator",
+            "name": "Divulge Scans",
+            "permalink": "divulge_scans"
+          },
+          {
+            "type": "General",
+            "name": "Drama",
+            "permalink": "drama"
+          },
+          {
+            "type": "General",
+            "name": "Yuri",
+            "permalink": "yuri"
+          },
+          {
+            "type": "Issue",
+            "name": "Rakuen (Le Paradis) Web",
+            "permalink": "rakuen_le_paradis_web"
+          },
+          {
+            "type": "Series",
+            "name": "An Absurd Relationship",
+            "permalink": "an_absurd_relationship"
+          },
+          {
+            "type": "General",
+            "name": "Office lady",
+            "permalink": "office_lady"
+          },
+          {
+            "type": "General",
+            "name": "Adult life",
+            "permalink": "adult_life"
+          },
+          {
+            "type": "Anthology",
+            "name": "An Absurd Relationship (Collection)",
+            "permalink": "an_absurd_relationship_collection"
+          },
+          {
+            "type": "General",
+            "name": "Bisexual",
+            "permalink": "bisexual"
+          }
+        ]
+      },
+      {
+        "title": "Chapter 2",
+        "permalink": "an_absurd_relationship_ch02",
+        "released_on": "2015-03-31",
+        "tags": [
+          {
+            "type": "Series",
+            "name": "An Absurd Relationship",
+            "permalink": "an_absurd_relationship"
+          },
+          {
+            "type": "Author",
+            "name": "Takemiya Jin",
+            "permalink": "takemiya_jin"
+          },
+          {
+            "type": "Scanlator",
+            "name": "Divulge Scans",
+            "permalink": "divulge_scans"
+          },
+          {
+            "type": "General",
+            "name": "Drama",
+            "permalink": "drama"
+          },
+          {
+            "type": "General",
+            "name": "Yuri",
+            "permalink": "yuri"
+          },
+          {
+            "type": "Issue",
+            "name": "Rakuen (Le Paradis) Web",
+            "permalink": "rakuen_le_paradis_web"
+          },
+          {
+            "type": "General",
+            "name": "Office lady",
+            "permalink": "office_lady"
+          },
+          {
+            "type": "General",
+            "name": "Adult life",
+            "permalink": "adult_life"
+          },
+          {
+            "type": "Anthology",
+            "name": "An Absurd Relationship (Collection)",
+            "permalink": "an_absurd_relationship_collection"
+          },
+          {
+            "type": "General",
+            "name": "Bisexual",
+            "permalink": "bisexual"
+          }
+        ]
+      }
+    ]
+  },
+  // Chapter Details
+  // In serieDetails.taggings:[] except 1st element -> tagging.permalink
+  // https://dynasty-scans.com/chapters/an_absurd_relationship_ch02.json
+  "ChapterDetails": {
+    "title": "An Absurd Relationship ch02",
+    "long_title": "An Absurd Relationship ch02",
+    "permalink": "an_absurd_relationship_ch02",
+    "tags": [
+      {
+        "type": "Series",
+        "name": "An Absurd Relationship",
+        "permalink": "an_absurd_relationship"
+      },
+      {
+        "type": "General",
+        "name": "Bisexual",
+        "permalink": "bisexual"
+      }
+    ],
+    "pages": [
+      {
+        "name": "01",
+        "url": "/system/releases/000/013/242/Irrational_Us_2_01.jpg"
+      },
+      {
+        "name": "02",
+        "url": "/system/releases/000/013/242/Irrational_Us_2_02.jpg"
+      }
+    ],
+    "released_on": "2015-03-31",
+    "added_on": "2015-03-31T05:29:16-04:00"
+  }
+  // ChapterPage
+  // In chapterDertails.pages:[] -> page.url
+
+}

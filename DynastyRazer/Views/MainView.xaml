@@ -39,7 +39,7 @@
                 <ListBox Height="200" x:Name="MangaListBox" SelectedItem="{Binding SelectedSerie}"  ItemsSource="{Binding FilteredSeries}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=Name}"/>
+                            <TextBlock Text="{Binding Path=Title}"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
@@ -65,7 +65,7 @@
 
                 <TextBlock Margin="0 5" FontWeight="Bold" FontSize="16">Chapter</TextBlock>
 
-                <ListBox Height="200" x:Name="ChapterListBox" ItemsSource="{Binding SerieDetails.Taggings}">
+                <ListBox Height="200" x:Name="ChapterListBox" ItemsSource="{Binding SerieDetails.Chapters}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <CheckBox x:Name="ChapterCheckBox" 
