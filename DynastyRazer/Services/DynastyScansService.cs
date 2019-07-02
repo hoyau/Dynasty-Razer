@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using DynastyRazer.Models;
+using DynastyRazer.ViewModels;
 using Newtonsoft.Json;
 
 namespace DynastyRazer.Services
@@ -30,21 +31,14 @@ namespace DynastyRazer.Services
         {
             foreach (ChapterListItem item in list)
             {
-                try
+                using (var client = new HttpClient())
                 {
-                    using (var client = new HttpClient())
-                    {
-                        string url = $"https://dynasty-scans.com/chapters/{item.Permalink}.json";
-                        HttpResponseMessage response = await client.GetAsync(url);
-                        string json = await response.Content.ReadAsStringAsync();
+                    string url = $"https://dynasty-scans.com/chapters/{item.Permalink}.json";
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    string json = await response.Content.ReadAsStringAsync();
 
-                        ChapterModel chapter = JsonConvert.DeserializeObject<ChapterModel>(json);
-                        item.Chapter = chapter;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
+                    Chapter chapter = JsonConvert.DeserializeObject<Chapter>(json);
+                    item.Chapter = chapter;
                 }
             }
         }
@@ -54,18 +48,11 @@ namespace DynastyRazer.Services
             Directory.CreateDirectory($@"{Configuration.SavePath}\{mangaName}\{chapterName}");
             PageDownloadStateChanged.Invoke(this, $"Downloading {chapterName} Page {page.Name}");
 
-            try
+            using (var client = new WebClient())
             {
-                using (var client = new WebClient())
-                {
-                    Uri uri = new Uri("https://dynasty-scans.com" + page.Url);
-                    string fileName = uri.Segments[uri.Segments.Length - 1];
-                    client.DownloadFile(uri, $@"{Configuration.SavePath}\{mangaName}\{chapterName}\{fileName}");
-                }
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
+                Uri uri = new Uri("https://dynasty-scans.com" + page.Url);
+                string fileName = uri.Segments[uri.Segments.Length - 1];
+                client.DownloadFile(uri, $@"{Configuration.SavePath}\{mangaName}\{chapterName}\{fileName}");
             }
 
             PageDownloadStateChanged.Invoke(this, $"Success");
@@ -103,26 +90,19 @@ namespace DynastyRazer.Services
 
             SerieDetails serie = null;
 
-            try
+            using (var client = new HttpClient())
             {
-                using (var client = new HttpClient())
-                {
-                    string url = $"https://dynasty-scans.com/series/{filter.Permalink}.json";
-                    HttpResponseMessage response = await client.GetAsync(url);
-                    string json = await response.Content.ReadAsStringAsync();
+                string url = $"https://dynasty-scans.com/series/{filter.Permalink}.json";
+                HttpResponseMessage response = await client.GetAsync(url);
+                string json = await response.Content.ReadAsStringAsync();
 
-                    serie = JsonConvert.DeserializeObject<SerieDetails>(json);
+                serie = JsonConvert.DeserializeObject<SerieDetails>(json);
 
-                    serie.Taggings = serie.Taggings.Where(x => !String.IsNullOrEmpty(x.Title)).ToList();
+                serie.Taggings = serie.Taggings.Where(x => !String.IsNullOrEmpty(x.Title)).ToList();
 
-                    foreach (var tag in serie.Taggings)
-                        tag.Title = string.Join("", tag.Title.Split(Path.GetInvalidFileNameChars()));
+                foreach (var tag in serie.Taggings)
+                    tag.Title = string.Join("", tag.Title.Split(Path.GetInvalidFileNameChars()));
 
-                }
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
             }
 
             SetChapterIsAlreadyDownloadedState(serie);

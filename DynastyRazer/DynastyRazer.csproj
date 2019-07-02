@@ -85,12 +85,12 @@
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Helpers\NandConverter.cs" />
     <Compile Include="Helpers\NegateConverter.cs" />
-    <Compile Include="Models\ChapterListItemModel.cs" />
+    <Compile Include="Models\ChapterListItem.cs" />
     <Compile Include="Models\ChapterModel.cs" />
     <Compile Include="Models\ChapterPage.cs" />
     <Compile Include="Models\ChapterTag.cs" />
     <Compile Include="Models\MangaProviderConfiguration.cs" />
-    <Compile Include="Models\SerieDetailsModel.cs" />
+    <Compile Include="Models\SerieDetails.cs" />
     <Compile Include="Models\SerieListModel.cs" />
     <Compile Include="Services\DynastyScansService.cs" />
     <Compile Include="Services\IMangaProviderService.cs" />

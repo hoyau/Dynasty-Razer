@@ -26,7 +26,7 @@
             <TextBlock FontSize="16" Margin="0 5">Save Path</TextBlock>
 
             <DockPanel>
-                <Button x:Name="ChoosePathButton" Command="{Binding PathClick}" Content="..." DockPanel.Dock="Right" Width="60"/>
+                <Button x:Name="ChoosePathButton" Command="{Binding PathClickCommand}" Content="..." DockPanel.Dock="Right" Width="60"/>
                 <TextBox Text="{Binding SavePath, Mode=OneWay}" Background="#eee" HorizontalAlignment="Stretch" IsReadOnly="True"/>
             </DockPanel>
             

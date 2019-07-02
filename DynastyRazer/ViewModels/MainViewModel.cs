@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -26,10 +27,10 @@ namespace DynastyRazer.ViewModels
         private int _pagesToDownloadCount;
         private int _pagesDownloadedCount;
 
-        private ICommand _downloadClick;
-        private ICommand _selectAllChaptersChange;
-        private ICommand _chapterClick;
-        private ICommand _mangaFilterChanged;
+        private ICommand _downloadClickCommand;
+        private ICommand _chaptersSelectAllChangeCommand;
+        private ICommand _chapterClickCommand;
+        private ICommand _mangaFilterChangedCommand;
 
         public MainViewModel(IMangaProviderService service)
         {
@@ -45,11 +46,11 @@ namespace DynastyRazer.ViewModels
 
                 ResetProgressBarDatas();
 
-                SelectAllChaptersChange = new RelayCommand<CheckBox>(OnSelectAllChaptersChange, CanExecuteSelectAllChaptersChange);
-                ChapterClick = new RelayCommand<CheckBox>(OnChapterClick);
-                MangaFilterChanged = new RelayCommand<string>(OnMangaFilterChanged);
-                DownloadClick = new RelayCommand<object>(async (p) => await OnDownloadClick(), CanExecuteDownloadClick);
-                _service.PageDownloadStateChanged += OnPageDownloadStateChanged;
+                ChaptersSelectAllChangeCommand = new RelayCommand<CheckBox>(ChaptersSelectAllChange, CanExecuteSelectAllChaptersChange);
+                ChapterClickCommand = new RelayCommand<CheckBox>(ChapterClick);
+                MangaFilterChangedCommand = new RelayCommand<string>(MangaFilterChanged);
+                DownloadClickCommand = new RelayCommand<object>(async (p) => await DownloadClick(), CanExecuteDownloadClick);
+                _service.PageDownloadStateChanged += PageDownloadStateChanged;
             });
         }
 
@@ -127,28 +128,28 @@ namespace DynastyRazer.ViewModels
             set { _pagesDownloadedCount = value; NotifyPropertyChanged(); }
         }
 
-        public ICommand ChapterClick
+        public ICommand ChapterClickCommand
         {
-            get => _chapterClick;
-            set { _chapterClick = value; NotifyPropertyChanged(); }
+            get => _chapterClickCommand;
+            set { _chapterClickCommand = value; NotifyPropertyChanged(); }
         }
 
-        public ICommand SelectAllChaptersChange
+        public ICommand ChaptersSelectAllChangeCommand
         {
-            get => _selectAllChaptersChange;
-            set { _selectAllChaptersChange = value; NotifyPropertyChanged(); }
+            get => _chaptersSelectAllChangeCommand;
+            set { _chaptersSelectAllChangeCommand = value; NotifyPropertyChanged(); }
         }
 
-        public ICommand DownloadClick
+        public ICommand DownloadClickCommand
         {
-            get => _downloadClick;
-            set { _downloadClick = value; NotifyPropertyChanged(); }
+            get => _downloadClickCommand;
+            set { _downloadClickCommand = value; NotifyPropertyChanged(); }
         }
 
-        public ICommand MangaFilterChanged
+        public ICommand MangaFilterChangedCommand
         {
-            get => _mangaFilterChanged;
-            set { _mangaFilterChanged = value; NotifyPropertyChanged(); }
+            get => _mangaFilterChangedCommand;
+            set { _mangaFilterChangedCommand = value; NotifyPropertyChanged(); }
         }
 
         private async Task LoadSerieDetails()
@@ -181,8 +182,11 @@ namespace DynastyRazer.ViewModels
             return _serieDetails != null && !_isDownloading;
         }
 
-        private void OnChapterClick(CheckBox c)
+        private void ChapterClick(CheckBox c)
         {
+            if (c == null || c?.DataContext == null)
+                return;
+
             bool isChecked = (bool)c.IsChecked;
             ChapterListItem chapterItem = (ChapterListItem)c.DataContext;
             chapterItem.IsSelected = isChecked;
@@ -193,9 +197,12 @@ namespace DynastyRazer.ViewModels
                 ChaptersToDownload.Remove(chapterItem);
         }
 
-        private void OnSelectAllChaptersChange(CheckBox c)
+        private void ChaptersSelectAllChange(CheckBox c)
         {
             bool isChecked = (bool)c.IsChecked;
+
+            if (_serieDetails?.Taggings == null)
+                return;
 
             foreach (ChapterListItem chapterItem in _serieDetails.Taggings)
             {
@@ -211,33 +218,41 @@ namespace DynastyRazer.ViewModels
 
         }
 
-        private async Task OnDownloadClick()
+        private async Task DownloadClick()
         {
-            await Task.Run(() =>
+            await Task.Run(async() =>
             {
-                IsDownloading = true;
-                _service.AssignChapter(ChaptersToDownload.ToList());
-                InitProgressBarDatas();
-
-                foreach (var item in ChaptersToDownload)
+                try
                 {
-                    foreach (var page in item.Chapter.Pages)
+                    IsDownloading = true;
+                    await _service.AssignChapter(ChaptersToDownload.ToList());
+                    InitProgressBarDatas();
+
+                    foreach (var item in ChaptersToDownload)
                     {
-                        _service.DownloadPage(page, item.Chapter.Tags.Where(x => x.Type.Equals("Series")).First().Name, item.Title);
-                        PagesDownloadedCount++;
+                        foreach (var page in item.Chapter.Pages)
+                        {
+                            await _service.DownloadPage(page, item.Chapter.Tags.Where(x => x.Type.Equals("Series")).First().Name, item.Title);
+                            PagesDownloadedCount++;
+                        }
                     }
+
+                    ChaptersToDownload.Clear();
+                    _ = LoadSerieDetails();
+
+                    IsSelectAllChaptersChecked = false;
+                    IsDownloading = false;
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
                 }
 
-                ChaptersToDownload.Clear();
-                _ = LoadSerieDetails();
-
-                IsSelectAllChaptersChecked = false;
-                IsDownloading = false;
             });
             CommandManager.InvalidateRequerySuggested();
         }
 
-        private void OnMangaFilterChanged(string filterString)
+        private void MangaFilterChanged(string filterString)
         {
             IEnumerable<SerieListItem> t = from serie in Series
                                                 where serie.Name.ToLower().IndexOf(filterString.ToLower()) >= 0
@@ -245,7 +260,7 @@ namespace DynastyRazer.ViewModels
             FilteredSeries = t.ToList();
         }
 
-        private void OnPageDownloadStateChanged(object param, string s)
+        private void PageDownloadStateChanged(object param, string s)
         {
             DownloadStatusText = s;
         }

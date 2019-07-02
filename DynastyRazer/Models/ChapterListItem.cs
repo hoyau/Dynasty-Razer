@@ -13,7 +13,7 @@ namespace DynastyRazer.Models
         public string Permalink { get; set; }
         public bool IsLocallySaved { get; set; }
         public bool IsSelected { get; set; }
-        public ChapterModel Chapter { get; set; }
+        public Chapter Chapter { get; set; }
         public bool IsChecked
         {
             get => IsLocallySaved || IsSelected;

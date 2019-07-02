@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DynastyRazer.Models
 {
-    public class ChapterModel
+    public class Chapter
     {
         public string Title { get; set; }
         public string Permalink { get; set; }

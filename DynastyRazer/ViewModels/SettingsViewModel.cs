@@ -17,28 +17,43 @@ namespace DynastyRazer.ViewModels
     {
         private IMangaProviderService _service;
         private string _savePath;
-        private ICommand _pathClick;
+        private ICommand _pathClickCommand;
 
         public SettingsViewModel(IMangaProviderService service)
         {
             _service = service;
             SavePath = _service.Configuration.SavePath;
-            PathClick = new RelayCommand<object>((p) => OnPathClick());
+            PathClickCommand = new RelayCommand<object>((p) => PathClick());
         }
 
+        public ICommand PathClickCommand
+        {
+            get => _pathClickCommand;
+            set { _pathClickCommand = value; NotifyPropertyChanged(); }
+        }
         public string SavePath
         {
             get { return _savePath; }
             set { _savePath = value; NotifyPropertyChanged(); }
         }
 
-        public ICommand PathClick
+        private void PathClick()
         {
-            get => _pathClick;
-            set { _pathClick = value; NotifyPropertyChanged(); }
+            string initialDirectory = String.IsNullOrEmpty(SavePath) ? AppDomain.CurrentDomain.BaseDirectory : SavePath;
+            using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
+            {
+                dialog.InitialDirectory = initialDirectory;
+                dialog.IsFolderPicker = true;
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    bool result = UpdatePath(dialog.FileName);
+                    if (!result)
+                        MessageBox.Show("Saving File Path failed");
+                }
+            }
         }
 
-        private  bool UpdatePath(string path)
+        private bool UpdatePath(string path)
         {
             bool result = false;
             if (!String.IsNullOrEmpty(path) && Directory.Exists(path))
@@ -50,23 +65,6 @@ namespace DynastyRazer.ViewModels
 
             return result;
         }
-
-        #region Command Methods
-        private void OnPathClick()
-        {
-            using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
-            {
-                dialog.InitialDirectory = "C:\\Users";
-                dialog.IsFolderPicker = true;
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    bool result = UpdatePath(dialog.FileName);
-                    if (!result)
-                        MessageBox.Show("Saving File Path failed");
-                }
-            }
-        }
-        #endregion
 
     }
 }

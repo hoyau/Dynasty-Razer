@@ -50,7 +50,7 @@
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="KeyUp">
                             <i:InvokeCommandAction 
-                                Command="{Binding MangaFilterChanged}" 
+                                Command="{Binding MangaFilterChangedCommand}" 
                                 CommandParameter="{Binding ElementName=FilterTextBox, Path=Text}"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
@@ -69,7 +69,7 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <CheckBox x:Name="ChapterCheckBox" 
-                                      Command="{Binding DataContext.ChapterClick, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      Command="{Binding DataContext.ChapterClickCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                       CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
                                       IsChecked="{Binding Path=IsChecked}"
                                       Content="{Binding Path=Title}">
@@ -85,7 +85,7 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
 
-                <CheckBox Content="Select All" IsChecked="{Binding IsSelectAllChaptersChecked}" Command="{Binding SelectAllChaptersChange}"
+                <CheckBox Content="Select All" IsChecked="{Binding IsSelectAllChaptersChecked}" Command="{Binding ChaptersSelectAllChangeCommand}"
                           CommandParameter="{Binding RelativeSource={RelativeSource Self}}"/>
                 <ProgressBar Margin="0 15 0 0"
                              Value="{Binding PagesDownloadedCount}" 
@@ -99,7 +99,7 @@
             <StackPanel>
                 <Image Source="./../img/StartpageLogo.JPG" Margin="0 0 0 20"/>
                 <Button x:Name="DownloadButton" 
-                        Command="{Binding DownloadClick}"
+                        Command="{Binding DownloadClickCommand}"
                         CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
                         FontSize="20" Content="Download" Height="36"></Button>
             </StackPanel>
