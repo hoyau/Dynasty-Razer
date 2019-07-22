@@ -26,6 +26,7 @@ namespace DynastyRazer.ViewModels
         private string _downloadStatusText;
         private int _pagesToDownloadCount;
         private int _pagesDownloadedCount;
+        private string _serieImageUrl;
 
         private ICommand _downloadClickCommand;
         private ICommand _chaptersSelectAllChangeCommand;
@@ -72,6 +73,12 @@ namespace DynastyRazer.ViewModels
             set { _downloadStatusText = value; NotifyPropertyChanged(); }
         }
 
+        public string SerieImageUrl
+        {
+            get => _serieImageUrl;
+            set { _serieImageUrl = value; NotifyPropertyChanged(); }
+        }
+
         public List<SerieListItem> FilteredSeries
         {
             get { return _filteredSeries; }
@@ -89,6 +96,7 @@ namespace DynastyRazer.ViewModels
 
                 foreach (ChapterListItem chapter in _serieDetails.Chapters)
                     chapter.IsSelected = ChaptersToDownload.Where(x => x.Url.Equals(chapter.Url)).Count() > 0;
+                SerieImageUrl = _serieDetails.Image;
                 NotifyPropertyChanged();
             }
         }

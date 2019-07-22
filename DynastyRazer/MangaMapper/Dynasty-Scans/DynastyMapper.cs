@@ -26,7 +26,8 @@ namespace DynastyRazer.MangaMapper.Dynasty_Scans
             {
                 Name = internSerieDetails.Name,
                 Chapters = chapters,
-                Url = mangaUrl
+                Url = mangaUrl,
+                Image = $"http://dynasty-scans.com{internSerieDetails.Cover}",
             };
 
             return serie;
