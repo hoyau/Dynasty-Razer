@@ -3,7 +3,7 @@ using DynastyRazer.Models;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DynastyRazer.MangaMapper.Dynasty_Scans
+namespace DynastyRazer.MangaMapper
 {
     public class DynastyMapper
     {
@@ -24,11 +24,10 @@ namespace DynastyRazer.MangaMapper.Dynasty_Scans
                 Name = internSerieDetails.Name,
                 Chapters = chapters,
                 Url = mangaUrl,
-                Image = $"http://dynasty-scans.com{internSerieDetails.Cover}",
+                ImageUrl = $"http://dynasty-scans.com{internSerieDetails.Cover}",
             };
 
             return serie;
-
         }
 
         public static ChapterDetails MapChapterDetails(DynastyChapter internChapter)
@@ -40,7 +39,7 @@ namespace DynastyRazer.MangaMapper.Dynasty_Scans
             {
                 Name = p.Name,
                 Url = p.Url,
-            })?.ToList();
+            }).ToList();
 
             ChapterDetails chapterDetails = new ChapterDetails
             {
@@ -48,6 +47,7 @@ namespace DynastyRazer.MangaMapper.Dynasty_Scans
                 Pages = pages,
                 Url = internChapter.Permalink,
             };
+
             return chapterDetails;
         }
 
@@ -60,7 +60,7 @@ namespace DynastyRazer.MangaMapper.Dynasty_Scans
             {
                 Title = s.Name,
                 Url = s.Permalink
-            })?.ToList();
+            }).ToList();
 
             return series;
         }
