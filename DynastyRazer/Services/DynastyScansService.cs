@@ -1,4 +1,4 @@
-﻿using DynastyRazer.MangaMapper.Dynasty_Scans;
+﻿using DynastyRazer.MangaMapper;
 using DynastyRazer.MangaModels.Dynasty_Scans;
 using DynastyRazer.Models;
 using Newtonsoft.Json;
@@ -16,11 +16,6 @@ namespace DynastyRazer.Services
     public class DynastyScansService : IMangaProviderService
     {
         public event EventHandler<string> PageDownloadStateChanged;
-
-        public DynastyScansService()
-        {
-
-        }
 
         public async Task AssignChapter(List<ChapterListItem> list)
         {
@@ -113,15 +108,7 @@ namespace DynastyRazer.Services
                 client.DownloadFile(uri, $@"{StorageService.SavePath}\{mangaName}\{chapterName}\{fileName}");
             }
 
-            PageDownloadStateChanged.Invoke(this, $"Success");
             return Task.CompletedTask;
         }
     }
-
 }
-
-/*
- * https://dynasty-scans.com/series.json
- * "#": [] mit {name und permalink}
- * 
- */

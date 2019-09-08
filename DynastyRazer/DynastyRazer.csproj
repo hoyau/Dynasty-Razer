@@ -85,7 +85,7 @@
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Helpers\NandConverter.cs" />
     <Compile Include="Helpers\NegateConverter.cs" />
-    <Compile Include="MangaMapper\Dynasty-Scans\DynastyMapper.cs" />
+    <Compile Include="MangaMapper\DynastyMapper.cs" />
     <Compile Include="MangaModels\Dynasty-Scans\DynastyChapter.cs" />
     <Compile Include="MangaModels\Dynasty-Scans\DynastyPage.cs" />
     <Compile Include="MangaModels\Dynasty-Scans\DynastySerieDetails.cs" />

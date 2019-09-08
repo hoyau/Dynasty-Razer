@@ -95,20 +95,20 @@ namespace DynastyRazer.ViewModels
 
                 foreach (ChapterListItem chapter in _serieDetails.Chapters)
                     chapter.IsSelected = ChaptersToDownload.Where(x => x.Url.Equals(chapter.Url)).Count() > 0;
-                SerieImageUrl = _serieDetails.Image;
+                SerieImageUrl = _serieDetails.ImageUrl;
                 NotifyPropertyChanged();
             }
         }
 
         public ObservableCollection<ChapterListItem> ChaptersToDownload
         {
-            get => _chaptersToDownload; 
+            get => _chaptersToDownload;
             set { _chaptersToDownload = value; NotifyPropertyChanged(); }
         }
 
         public SerieListItem SelectedSerie
         {
-            get => _selectedSerie; 
+            get => _selectedSerie;
             set
             {
                 _selectedSerie = value;
@@ -171,9 +171,11 @@ namespace DynastyRazer.ViewModels
 
         private void InitProgressBarDatas()
         {
-            int pageCount = 0;
+            var pageCount = 0;
+
             foreach (var item in ChaptersToDownload)
                 pageCount += item.ChapterDetails.Pages.Count;
+
             PagesToDownloadCount = pageCount;
             PagesDownloadedCount = 0;
         }
@@ -222,12 +224,11 @@ namespace DynastyRazer.ViewModels
                         ChaptersToDownload.Remove(chapterItem);
                 }
             }
-
         }
 
         private async Task DownloadClick()
         {
-            await Task.Run(async() =>
+            await Task.Run(async () =>
             {
                 try
                 {
@@ -235,30 +236,29 @@ namespace DynastyRazer.ViewModels
                     await _service.AssignChapter(ChaptersToDownload.ToList());
                     InitProgressBarDatas();
 
-                    await _service.StartDownload(ChaptersToDownload?.ToList());
+                    await _service.StartDownload(ChaptersToDownload.ToList());
 
-    
-
+                    DownloadStatusText = ChaptersToDownload.Count > 0 ? "Success" : "";
                     ChaptersToDownload.Clear();
                     _ = LoadSerieDetails();
 
                     IsSelectAllChaptersChecked = false;
                     IsDownloading = false;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show(ex.ToString());
                 }
-
             });
+
             CommandManager.InvalidateRequerySuggested();
         }
 
         private void MangaFilterChanged(string filterString)
         {
             IEnumerable<SerieListItem> t = from serie in Series
-                                                where serie.Title.ToLower().IndexOf(filterString.ToLower()) >= 0
-                                                select serie;
+                                           where serie.Title.ToLower().IndexOf(filterString.ToLower()) >= 0
+                                           select serie;
             FilteredSeries = t.ToList();
         }
 
@@ -267,10 +267,5 @@ namespace DynastyRazer.ViewModels
             DownloadStatusText = s;
             PagesDownloadedCount++;
         }
-
-
-
-
-
     }
 }

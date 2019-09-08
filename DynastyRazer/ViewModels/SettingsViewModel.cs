@@ -10,13 +10,11 @@ namespace DynastyRazer.ViewModels
 {
     public class SettingsViewModel : ViewModelBase
     {
-        private IMangaProviderService _service;
         private string _savePath;
         private ICommand _pathClickCommand;
 
         public SettingsViewModel(IMangaProviderService service)
         {
-            _service = service;
             SavePath = StorageService.SavePath;
             PathClickCommand = new RelayCommand<object>((p) => PathClick());
         }
@@ -34,11 +32,13 @@ namespace DynastyRazer.ViewModels
 
         private void PathClick()
         {
-            string initialDirectory = String.IsNullOrEmpty(SavePath) ? AppDomain.CurrentDomain.BaseDirectory : SavePath;
-            using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
+            var initialDirectory = string.IsNullOrEmpty(SavePath) ? AppDomain.CurrentDomain.BaseDirectory : SavePath;
+
+            using (var dialog = new CommonOpenFileDialog())
             {
                 dialog.InitialDirectory = initialDirectory;
                 dialog.IsFolderPicker = true;
+
                 if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
                     bool result = UpdatePath(dialog.FileName);
@@ -50,7 +50,7 @@ namespace DynastyRazer.ViewModels
 
         private bool UpdatePath(string path)
         {
-            bool result = false;
+            var result = false;
             if (!String.IsNullOrEmpty(path) && Directory.Exists(path))
             {
                 StorageService.SavePath = path;
@@ -60,6 +60,5 @@ namespace DynastyRazer.ViewModels
 
             return result;
         }
-
     }
 }
