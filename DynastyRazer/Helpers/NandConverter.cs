@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Data;
 
 namespace DynastyRazer.Helpers
@@ -9,20 +10,15 @@ namespace DynastyRazer.Helpers
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            List<bool> t = new List<bool>();
-            foreach(object value in values)
+            var relevantValues = new List<bool>();
+
+            foreach (var value in values)
             {
                 if (value is bool)
-                    t.Add((bool)value);
-            }
-;
-            foreach(bool r in t)
-            {
-                if (r)
-                    return false;
+                    relevantValues.Add((bool)value);
             }
 
-            return true;
+            return !relevantValues.Any(value => value);
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

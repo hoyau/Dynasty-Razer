@@ -10,6 +10,4 @@ namespace DynastyRazer.Models
         public string Url { get; set; }
         public List<ChapterListItem> Chapters { get; set; }
     }
-
-
 }

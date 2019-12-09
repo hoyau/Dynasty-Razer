@@ -15,13 +15,14 @@ namespace DynastyRazer.ViewModels
 
         protected void OpenWindow<T>(ref Window window) where T : Window, new()
         {
-            foreach (Window w in Application.Current.Windows)
+            // if the window is already open, activate it
+            foreach (Window existingWindow in Application.Current.Windows)
             {
-                if (w is T)
-                {
-                    w.Activate();
-                    return;
-                }
+                if (!(existingWindow is T))
+                    continue;
+
+                existingWindow.Activate();
+                return;
             }
 
             window = new T();
@@ -32,8 +33,5 @@ namespace DynastyRazer.ViewModels
         {
             window?.Close();
         }
-
-
-
     }
 }

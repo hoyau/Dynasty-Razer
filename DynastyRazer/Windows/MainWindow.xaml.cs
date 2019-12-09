@@ -22,11 +22,10 @@ namespace DynastyRazer.Windows
             DataContext = new MainViewModel(_mangaProviderService);
         }
 
-
         private void MenuItemAbout_Click(object sender, RoutedEventArgs e)
         {
-            AboutWindow win = new AboutWindow();
-            win.Show();
+            AboutWindow window = new AboutWindow();
+            window.Show();
         }
 
         private void MenuItemSettings_Click(object sender, RoutedEventArgs e)
@@ -37,7 +36,7 @@ namespace DynastyRazer.Windows
 
         private void MenuItemStarts_Click(object sender, RoutedEventArgs e)
         {
-            if(!(DataContext is MainViewModel))
+            if (!(DataContext is MainViewModel))
                 DataContext = new MainViewModel(_mangaProviderService);
         }
     }

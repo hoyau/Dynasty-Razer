@@ -1,68 +1,62 @@
-﻿using DynastyRazer.MangaModels.Dynasty_Scans;
+﻿using DynastyRazer.MangaModels.DynastyScans;
 using DynastyRazer.Models;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace DynastyRazer.MangaMapper
 {
-    public class DynastyMapper
+    public static class DynastyMapper
     {
-        public static SerieDetails MapSerieDetails(DynastySerieDetails internSerieDetails, string mangaTitle, string mangaUrl)
+        public static SerieDetails MapSerieDetails(DynastySerieDetails externSerieDetails, string mangaTitle, string mangaUrl)
         {
-            if (internSerieDetails == null)
+            if (externSerieDetails == null)
                 return null;
 
-            List<ChapterListItem> chapters = internSerieDetails.Taggings?.Select(c => new ChapterListItem
+            var chapters = externSerieDetails.Taggings?.Select(c => new ChapterListItem
             {
                 Title = c.Title,
                 Url = c.Permalink,
                 MangaTitle = mangaTitle,
-            })?.ToList();
+            }).ToList();
 
-            SerieDetails serie = new SerieDetails
+            return new SerieDetails
             {
-                Name = internSerieDetails.Name,
+                Name = externSerieDetails.Name,
                 Chapters = chapters,
                 Url = mangaUrl,
-                ImageUrl = $"http://dynasty-scans.com{internSerieDetails.Cover}",
+                ImageUrl = $"http://dynasty-scans.com{externSerieDetails.Cover}",
             };
-
-            return serie;
         }
 
-        public static ChapterDetails MapChapterDetails(DynastyChapter internChapter)
+        public static ChapterDetails MapChapterDetails(DynastyChapter externChapter)
         {
-            if (internChapter == null)
+            if (externChapter == null)
                 return null;
 
-            List<ChapterPage> pages = internChapter.Pages?.Select(p => new ChapterPage
+            var pages = externChapter.Pages?.Select(p => new ChapterPage
             {
                 Name = p.Name,
                 Url = p.Url,
             }).ToList();
 
-            ChapterDetails chapterDetails = new ChapterDetails
+            return new ChapterDetails
             {
-                Title = internChapter.Title,
+                Title = externChapter.Title,
                 Pages = pages,
-                Url = internChapter.Permalink,
+                Url = externChapter.Permalink,
             };
-
-            return chapterDetails;
         }
 
-        public static List<SerieListItem> MapSerieListItems(List<DynastySerieListItem> internSeries)
+        public static List<SerieListItem> MapSerieListItems(List<DynastySerieListItem> externSeries)
         {
-            if (internSeries == null)
+            if (externSeries == null)
                 return null;
 
-            List<SerieListItem> series = internSeries.Select(s => new SerieListItem
+            return externSeries.Select(s => new SerieListItem
             {
                 Title = s.Name,
                 Url = s.Permalink
             }).ToList();
-
-            return series;
         }
     }
 }

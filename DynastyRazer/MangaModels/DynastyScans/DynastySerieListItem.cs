@@ -1,4 +1,4 @@
-﻿namespace DynastyRazer.MangaModels.Dynasty_Scans
+﻿namespace DynastyRazer.MangaModels.DynastyScans
 {
     public class DynastySerieListItem
     {

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using DynastyRazer.MangaModels.DynastyScans;
+using System.Collections.Generic;
 
-namespace DynastyRazer.MangaModels.Dynasty_Scans
+namespace DynastyRazer.MangaModels.DynastyScans
 {
     public class DynastyChapter
     {
@@ -8,6 +9,5 @@ namespace DynastyRazer.MangaModels.Dynasty_Scans
         public string Permalink { get; set; }
         public List<DynastyPage> Pages { get; set; }
         public List<DynastyTag> Tags { get; set; }
-       
     }
 }

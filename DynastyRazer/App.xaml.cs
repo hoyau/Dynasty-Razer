@@ -17,6 +17,5 @@ namespace DynastyRazer
             Thread.CurrentThread.CurrentCulture = new CultureInfo(langCode);
             Thread.CurrentThread.CurrentUICulture = new CultureInfo(langCode);
         }
-
     }
 }

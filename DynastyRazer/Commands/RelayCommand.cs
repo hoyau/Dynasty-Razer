@@ -5,16 +5,12 @@ namespace DynastyRazer.Commands
 {
     public class RelayCommand<T> : ICommand
     {
-        #region Fields
+        private readonly Action<T> _execute = null;
+        private readonly Predicate<T> _canExecute = null;
 
-        readonly Action<T> _execute = null;
-        readonly Predicate<T> _canExecute = null;
-
-        #endregion
-
-        public RelayCommand(Action<T> execute)
-            : this(execute, null)
-        {}
+        public RelayCommand(Action<T> execute) : this(execute, null)
+        {
+        }
 
         public RelayCommand(Action<T> execute, Predicate<T> canExecute)
         {
@@ -25,21 +21,20 @@ namespace DynastyRazer.Commands
             _canExecute = canExecute;
         }
 
-        public bool CanExecute(object parameter)
-        {
-            return _canExecute == null ? true : _canExecute((T)parameter);
-        }
-
         public event EventHandler CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
         }
-        
+
+        public bool CanExecute(object parameter)
+        {
+            return _canExecute == null ? true : _canExecute((T)parameter);
+        }
+
         public void Execute(object parameter)
         {
             _execute((T)parameter);
         }
-
     }
 }

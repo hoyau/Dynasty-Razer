@@ -90,11 +90,15 @@ namespace DynastyRazer.ViewModels
             set
             {
                 _serieDetails = value;
+
                 if (_serieDetails == null)
                     return;
 
-                foreach (ChapterListItem chapter in _serieDetails.Chapters)
-                    chapter.IsSelected = ChaptersToDownload.Where(x => x.Url.Equals(chapter.Url)).Count() > 0;
+                foreach (var chapter in _serieDetails.Chapters)
+                {
+                    chapter.IsSelected = ChaptersToDownload.Any(x => x.Url.Equals(chapter.Url));
+                }
+
                 SerieImageUrl = _serieDetails.ImageUrl;
                 NotifyPropertyChanged();
             }
@@ -174,7 +178,9 @@ namespace DynastyRazer.ViewModels
             var pageCount = 0;
 
             foreach (var item in ChaptersToDownload)
+            {
                 pageCount += item.ChapterDetails.Pages.Count;
+            }
 
             PagesToDownloadCount = pageCount;
             PagesDownloadedCount = 0;
@@ -193,11 +199,11 @@ namespace DynastyRazer.ViewModels
 
         private void ChapterClick(CheckBox c)
         {
-            if (c == null || c?.DataContext == null)
+            if (c?.DataContext == null)
                 return;
 
-            bool isChecked = (bool)c.IsChecked;
-            ChapterListItem chapterItem = (ChapterListItem)c.DataContext;
+            var isChecked = (bool)c.IsChecked;
+            var chapterItem = (ChapterListItem)c.DataContext;
             chapterItem.IsSelected = isChecked;
 
             if (isChecked)
@@ -208,21 +214,21 @@ namespace DynastyRazer.ViewModels
 
         private void ChaptersSelectAllChange(CheckBox c)
         {
-            bool isChecked = (bool)c.IsChecked;
+            var isChecked = (bool)c.IsChecked;
 
             if (_serieDetails?.Chapters == null)
                 return;
 
-            foreach (ChapterListItem chapterItem in _serieDetails.Chapters)
+            foreach (var chapterItem in _serieDetails.Chapters)
             {
-                if (!chapterItem.IsLocallySaved)
-                {
-                    chapterItem.IsChecked = isChecked;
-                    if (isChecked && !ChaptersToDownload.Contains(chapterItem))
-                        ChaptersToDownload.Add(chapterItem);
-                    else if (!isChecked && ChaptersToDownload.Contains(chapterItem))
-                        ChaptersToDownload.Remove(chapterItem);
-                }
+                if (chapterItem.IsLocallySaved)
+                    continue;
+
+                chapterItem.IsChecked = isChecked;
+                if (isChecked && !ChaptersToDownload.Contains(chapterItem))
+                    ChaptersToDownload.Add(chapterItem);
+                else if (!isChecked && ChaptersToDownload.Contains(chapterItem))
+                    ChaptersToDownload.Remove(chapterItem);
             }
         }
 
@@ -233,7 +239,7 @@ namespace DynastyRazer.ViewModels
                 try
                 {
                     IsDownloading = true;
-                    await _service.AssignChapter(ChaptersToDownload.ToList());
+                    await _service.AssignChapterDetails(ChaptersToDownload.ToList());
                     InitProgressBarDatas();
 
                     await _service.StartDownload(ChaptersToDownload.ToList());
@@ -256,10 +262,10 @@ namespace DynastyRazer.ViewModels
 
         private void MangaFilterChanged(string filterString)
         {
-            IEnumerable<SerieListItem> t = from serie in Series
-                                           where serie.Title.ToLower().IndexOf(filterString.ToLower()) >= 0
-                                           select serie;
-            FilteredSeries = t.ToList();
+            var filteredSeries = from serie in Series
+                                 where serie.Title.ToLower().IndexOf(filterString.ToLower()) >= 0
+                                 select serie;
+            FilteredSeries = filteredSeries.ToList();
         }
 
         private void PageDownloadStateChanged(object param, string s)

@@ -29,8 +29,6 @@
                 <Button x:Name="ChoosePathButton" Command="{Binding PathClickCommand}" Content="..." DockPanel.Dock="Right" Width="60"/>
                 <TextBox Text="{Binding SavePath, Mode=OneWay}" Background="#eee" HorizontalAlignment="Stretch" IsReadOnly="True"/>
             </DockPanel>
-            
-
         </StackPanel>
     </Grid>
 </UserControl>

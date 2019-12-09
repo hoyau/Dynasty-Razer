@@ -16,7 +16,7 @@ namespace DynastyRazer.Models
         public string MangaTitle { get; set; }
 
         /// <summary>
-        /// Lazy Load Property
+        /// Lazy load property after a chapter is selected
         /// </summary>
         public ChapterDetails ChapterDetails { get; set; }
 

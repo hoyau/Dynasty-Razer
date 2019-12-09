@@ -11,6 +11,5 @@ namespace DynastyRazer.Views
         {
             InitializeComponent();
         }
-        
     }
 }

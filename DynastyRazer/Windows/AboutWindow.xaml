@@ -30,21 +30,8 @@
                     <DockPanel HorizontalAlignment="Left">
                         <Label Content="Github"/>
                     </DockPanel>
-
                 </Button>
             </StackPanel>
-
-
-
-
-
-
-
-
-
-
-
         </Grid>
     </Border>
-
 </Window>

@@ -8,7 +8,6 @@
              xmlns:helpers="clr-namespace:DynastyRazer.Helpers"
              mc:Ignorable="d" 
              Height="363" Width="803">
-
     <UserControl.Resources>
         <helpers:NegateConverter x:Key="negate"/>
         <helpers:NandConverter x:Key="nand"/>
@@ -104,8 +103,5 @@
                         FontSize="20" Content="Download" Height="36"></Button>
             </StackPanel>
         </Border>
-
-
-
     </Grid>
 </UserControl>

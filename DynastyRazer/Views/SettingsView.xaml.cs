@@ -1,6 +1,5 @@
 ﻿using System.Windows.Controls;
 
-
 namespace DynastyRazer.Views
 {
     /// <summary>
@@ -12,6 +11,5 @@ namespace DynastyRazer.Views
         {
             InitializeComponent();
         }
-
     }
 }
